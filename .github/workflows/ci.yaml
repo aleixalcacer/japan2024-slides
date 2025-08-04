@@ -9,6 +9,9 @@ name: Render and Publish
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     
     steps:
       - name: Check out repository
@@ -28,9 +31,6 @@ jobs:
           python-version: 3.12
           auto-activate-base: false
           
-      - name: check solution
-        run: |
-          mamba env export
 
       # add software dependencies here and any libraries
       
