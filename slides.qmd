@@ -1,0 +1,592 @@
+---
+title: "Fair archetypal analysis for fair representation"
+subtitle: "EcoSta 2025"
+author: "Aleix Alcacer and Irene Epifanio"
+date: 2025/08/23
+date-format: full
+# institute: "Institut de Noves Tecnologies de la Imatge"
+format:
+    revealjs: 
+        html-math-method: katex
+        smaller: true
+        scrollable: true
+        slide-number: true
+        fig-format: svg
+        toc-depth: 1
+        toc: true
+        preview-links: auto
+        logo: static/simbol-UJI-color.png
+        footer: "Fair archetypal analysis for fair representation | EcoSta2025"
+        title-slide-attributes:
+            data-background-image: static/background.png
+            data-background-size: cover
+            data-background-opacity: "0.5"
+        
+---
+
+## Latex definitions {visibility="hidden"}
+
+\newcommand*{\transpose}{{\mkern-1.5mu\mathsf{T}}}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+# Introduction
+
+## The concept of *archetype*
+	
+- Etymologically, the term *archetype* is derived from the Ancient Greek *árkhō* 'to begin' and *túpos* 'sort, type'.
+
+-  Some definitions of *archetype* include:
+    1. a very typical example of a certain person or thing (*Oxford Dictionary*).
+    2. a typical example of something, or the original model of something from which others are copied (*Cambridge Dictionary*).
+    3. the original pattern or model of which all things of the same type are representations or copies (*Merriam-Webster Dictionary*).
+
+
+**"An *archetype* is a typical form or prototype that other objects are derived from"**
+
+
+## Example: *Inside Out*
+
+In the movie, the main character, Riley, has five archetypal emotions: Joy, Sadness, Fear, Anger, and Disgust.
+
+![Archetypal emotions in *Inside Out* movie ](static/introduction/inside_out_all.png)
+
+---
+
+### New emotions
+
+However, as seen in *Inside Out 2*, not only exists these emotions, but also new emotions can be obtained by combining these:
+
+![Mixed emotions in *Inside Out 2*](static/introduction/inside_out_mixed.png)
+
+---
+
+### Combining archetypal emotions
+
+Therefore, a new wide range of emotions can be obtained by combining the archetypal emotions:
+
+![New emotions obtained from combining the archetypal emotions](static/introduction/inside_out.png)
+
+
+# Archetypal Analysis in Machine Learning
+
+## Motivation of work
+
+![Number of publications containing the "archetypal analysis" keyword over the years. Data has been collected from Google Scholar.](static/introduction/trend.png)
+
+
+## Machine Learning
+
+![Machine learning overview](static/introduction/ml-mindmap.png){.r-stretch}
+
+## Archetypal Analysis (AA)
+
+- Unsupervised machine learning technique introduced by Cutler and Breiman in 1994.
+- Identifies extreme points that are representative of the underlying patterns or structures within the data set.
+- Represents each data point as a mixture of these archetypes.
+
+::: {.columns}
+
+::: {.column width=50%}
+
+![Dataset](static/aa/dataset.png){.r-stretch}
+:::
+
+::: {.column width=50%}
+![Archetypes](static/aa/dataset-archetypes.png){.r-stretch}
+:::
+
+:::
+
+---
+
+### Formal Definition
+
+Let $\mathfrak{X}=\{\bm{x}^{(1)}, \bm{x}^{(2)}, \ldots, \bm{x}^{(N)}\}$ be a dataset where each $\bm{x}^{(n)} \in \mathbb{R}^M$.
+
+#### Objective
+
+- Find some archetypes $\mathfrak{Z} = \{\bm{z}^{(1)}, \bm{z}^{(2)}, \ldots, \bm{z}^{(K)}\}$ where each $\bm{z}^{(k)} \in \mathbb{R}^M$, which are convex combinations of the data points in $\mathfrak{X}$.
+
+- Simultaneously, each data point $\bm{x}^{(n)}$ is also approximated as a convex combination of these archetypes $\mathfrak{Z}$.
+
+---
+
+#### Archetypes as convex combinations of the data points
+
+Expanding previous definition, each archetype $\bm{Z}_k$, i.e. $\bm{z}^{(k)}$, can be represented as
+convex combinations of the data points:
+$$ \bm{Z}_k = \sum_{n=1}^{N} \bm{{C}}_{k,n} \bm{X}_n $$
+
+subject to $\|{\bm{{c}}_k}\|_1 = 1$ and $\bm{{c}}_{k,n} \in [0, 1]$.
+
+![Archetypes as convex combinations of the data points](static/aa/arch-as-data.png){.r-stretch}
+
+---
+
+#### Data points as convex combinations of the archetypes
+
+Simultaneously, each data point $\bm{X}_n$, i.e. $\bm{x}^{(n)}$, is then approximated as a convex combination of these archetypes
+$$ \bm{X}_n \approx \sum_{k=1}^{K} \bm{{S}}_{n,k} \bm{Z}_k $$
+similarly subject to $\|{\bm{{s}}_n}\|_1 = 1$ and $\bm{{s}}_{n,k} \in [0,1]$.
+
+
+![Data points as convex combinations of the archetypes](static/aa/data-as-arch.png){.r-stretch}
+
+---
+
+#### Matrix notation
+
+This formulation thus involves two matrices of coefficients: $\bm{{C}}$ which defines the archetypes as combinations of the data points, and $\bm{{S}}$ which represents each data point as a mixture of archetypes.
+
+In matrix notation, archetypal analysis can be expressed as:
+$$ \bm{X} \approx \bm{S} \bm{Z} = \bm{S} (\bm{C} \bm{X})$$
+
+---
+
+### Computation
+
+To compute the archetypes, we need to minimize the following objective function:
+$$\argmin_{\mathbf{S}, \mathbf{C}} \|\mathbf{X} - \mathbf{SCX}\|_F^2 $$
+subject to $\|{\mathbf{s}_n}\|_1 = 1$, $\mathbf{s}_n \geq 0$, $\|{\mathbf{c}_k}\|_1 = 1$ and $\mathbf{c}_k \geq 0$.
+
+As proposed by Mørup & Hansen in 2012, the objective function can be rewritten in terms of the trace operator as
+$$ E = \|{\mathbf{X} - \mathbf{SCX}}\|_F^2 = \text{tr} \left( \mathbf{X} \mathbf{X}^\transpose - 2 \mathbf{SCX}\mathbf{X}^\transpose +  \mathbf{SCX}\mathbf{X}^\transpose \mathbf{C}^\transpose \mathbf{S}^\transpose \right),$$
+which allows us to derive the gradients with respect to $\mathbf{S}$ and $\mathbf{C}$
+$$\nabla_{\mathbf{S}} E = 2(\mathbf{SCX} \mathbf{X}^\transpose\mathbf{C}^\transpose -\mathbf{X} \mathbf{X}^\transpose\mathbf{C}^\transpose),$$
+$$\nabla_{\mathbf{C}} E = 2(\mathbf{S}^\transpose\mathbf{S}\mathbf{C}\mathbf{X}\mathbf{X}^\transpose - \mathbf{S}^\transpose\mathbf{X}\mathbf{X}^\transpose).$$
+
+--- 
+
+#### Steps
+
+To minimize the objective function $E$, AA can be computed using an alternating optimization scheme:
+
+1. **Update $\mathbf{S}$:**
+
+    $$
+    \mathbf{S} \leftarrow \mathbf{S} - \eta_S \cdot \nabla_{\mathbf{S}} E
+    $$
+
+2. **Project $\mathbf{S}$** back onto its feasible set.
+
+3. **Update $\mathbf{C}$:**
+
+   $$
+   \mathbf{C} \leftarrow \mathbf{C} - \eta_C \cdot \nabla_{\mathbf{C}} E
+   $$
+
+4. **Project $\mathbf{C}$** back onto its feasible set.
+
+where $\eta_S$ and $\eta_C$ are the learning rates.
+
+
+---
+
+### Selecting the optimal number of archetypes
+
+- Achieving a balance between complexity and elucidation of data patterns is crucial.
+- Archetypes are not necessarily nested; they can change as $K$ increases to better capture data structure.
+- The Elbow Method is a preferred approach due to its simplicity and intuitive visual clarity.
+
+![Archetypal Analysis with different number of archetypes](static/aa/n_archetypes.png){.r-stretch}
+
+---
+
+#### The Elbow Method
+
+1. Plot performance metric (variance explained or reconstruction error) vs. number of archetypes.
+2. Identify the "elbow" where marginal gains diminish.
+3. The elbow indicates the optimal number of archetypes.
+
+![The Elbow Method](static/aa/elbow.png){.r-stretch}
+
+# Archetypal Analysis vs Clustering
+
+## Clustering
+
+- Clustering is a technique used to group similar data points into clusters.
+- The goal is to find groups of data points that are similar to each other and dissimilar to data points in other clusters.
+- The prototypes of the clusters are the centroids of them.
+
+<br>
+
+::: {.fragment}
+
+| Property | Clustering | Archetypal Analysis |
+|----------|------------|---------------------|
+| Goal | Group similar data points | Find extreme points |
+| Prototypes | Centroids | Extreme points |
+:::
+
+## Example
+
+Consider the following dataset representing a set of colors:
+
+```{python}
+
+from archetypes.datasets import make_archetypal_dataset
+import numpy as np
+
+# Create a dataset with 1000 samples
+archetypes = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+X, _ = make_archetypal_dataset(archetypes=archetypes, shape=(500,), alpha=1)
+
+generator = np.random.Generator(np.random.PCG64())
+X_2 = generator.dirichlet(alpha=(5, 5, 5), size=500)
+
+# Add to X the archetypes
+X = np.vstack([X, archetypes])
+X = np.vstack([X, X_2])
+```
+
+```{python}
+
+#| fig-align: center
+
+from archetypes.visualization import simplex
+import matplotlib.colors as mcolors
+
+# convert X to HEX colors
+X_color = [mcolors.to_hex(x) for x in X]
+
+# Plot the data
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+ax = simplex(X, color=X_color, show_edges=False, show_vertices=False, alpha=0.25, ax=ax)
+
+# remove annotations added to ax
+for annotation in ax.texts:
+    annotation.remove()
+
+plt.show()
+```
+
+
+Q: Which three colors do you think best represent the dataset?
+
+---
+
+```{python}
+
+#| fig-align: center
+#| fig-cap: Clustering and Archetypal Analysis prototypes obtained
+
+from sklearn.cluster import KMeans
+from archetypes import AA
+
+# Fit a KMeans model with 3 clusters
+kmeans = KMeans(n_clusters=3, random_state=0).fit(X)
+kmeans_prototypes = kmeans.cluster_centers_
+kmeans_prototypes_color = [mcolors.to_hex(x) for x in kmeans_prototypes]
+
+# Fit an AA model with 3 archetypes
+aa = AA(n_archetypes=3, random_state=0).fit(X)
+aa_prototypes = aa.archetypes_
+aa_prototypes_color = [mcolors.to_hex(x) for x in aa_prototypes]
+
+group_color = [kmeans_prototypes_color[label] for label in kmeans.labels_]
+
+```
+
+### Prototypes comparison
+
+As you can imagine, the prototypes obtained by clustering and by archetypal analysis are different:
+
+::: {.columns}
+
+::: {.column width=50%}
+::: {.fragment}
+```{python}
+
+#| fig-align: center
+#| fig-cap: Clustering prototypes
+
+# Plot the data
+fig, ax = plt.subplots()
+ax = simplex(X, color=X_color, show_edges=False, show_vertices=False, alpha=0.1, ax=ax)
+
+# Plot the KMeans centroids
+ax = simplex(kmeans_prototypes, color=kmeans_prototypes_color, show_edges=False, show_vertices=False, alpha=1,s=150, marker="s", ax=ax)
+
+# remove annotations added to ax
+for annotation in ax.texts:
+    annotation.remove()
+
+# create a legend with the same markers
+from matplotlib.lines import Line2D
+handles = [Line2D([0], [0], marker='s', color='w', label='Prototypes', markerfacecolor='black', markersize=10, linestyle='None')]
+
+ax.legend(handles=handles, loc='lower right')
+
+
+plt.show()
+
+```
+:::
+:::
+
+::: {.column width=50%}
+::: {.fragment}
+```{python}
+#| fig-align: center
+#| fig-cap: Archetypal Analysis prototypes
+
+
+# Plot the data
+fig, ax = plt.subplots()
+ax = simplex(X, color=X_color, show_edges=False, show_vertices=False, alpha=0.1, ax=ax)
+
+
+# plot the AA archetypes
+ax = simplex(aa_prototypes, color=aa_prototypes_color, show_edges=False, show_vertices=False, alpha=1, s=150, marker='D', ax=ax)
+
+
+# remove annotations added to ax
+for annotation in ax.texts:
+    annotation.remove()
+
+# create a legend with the same markers
+from matplotlib.lines import Line2D
+handles = [Line2D([0], [0], marker='D', color='w', label='Prototypes', markerfacecolor='black', markersize=10, linestyle='None')]
+
+ax.legend(handles=handles, loc='lower right')
+
+plt.show()
+```
+:::
+:::
+
+::: {.fragment}
+As can be seen, in datasets where there aren't clear clusters, archetypal analysis can be an effective technique to find interpretable prototypes.
+:::
+:::
+
+# Fair Archetypal Analysis
+
+---
+
+### Definition
+
+Following the work of Kleindessner et al. in 2023 on fair PCA, our objective in fair archetypal analysis (FairAA) is to obscure critical information when projecting the dataset onto the archetypal space.
+
+Let $z_i \in \{0, 1\}$ represent a critical attribute of the data point $x_i$, indicating membership in one of two groups. Ideally, no classifier should be able to infer $z_i$ from the projection of $x_i$ onto the $K$-archetypal space.
+
+Analagously to the definition of AA, we can define FairAA as follows:
+
+$$\argmin_{\mathbf{S}, \mathbf{C}} \|{\mathbf{X} - \mathbf{SCX}}\|_F^2 $$
+
+subject to $\|{\mathbf{s}_n}\|_1 = 1$, $\mathbf{s}_n \geq 0$, $\|{\mathbf{c}_k}\|_1 = 1$, $\mathbf{c}_k \geq 0$ and $\forall h:\mathbb{R}^k\rightarrow\mathbb{R}$, $h(\mathbf{s}_i)$ and $z_i$ are statistically independent.
+
+---
+
+#### Reformulation
+
+If we define $\bar{z} = \frac{1}{n}\sum z_i$ and $\mathbf{z} = \{z_1 - \bar{z}, \dots, z_n - \bar{z}\} \in \mathbb{R}^n$ and consider only linear classifiers, we can reformulate the fairness requirement as:
+
+\begin{gather*}
+    \forall w \in \mathbb{R}^k, b\in \mathbb{R}: \mathbf{w} \mathbf{s}_i^\transpose + b \text{ and } z_i \text{ are uncorrelated} \Leftrightarrow \\
+    \forall w \in \mathbb{R}^k, b\in \mathbb{R}: \sum_{i=1}^n (z_i - \bar{z})(\mathbf{w} \mathbf{s}_i^\transpose + b) = 0 \Leftrightarrow \\
+    \forall w \in \mathbb{R}^k: \mathbf{z}\mathbf{S}\mathbf{w}^T = 0 \Leftrightarrow \\
+    \mathbf{z}\mathbf{S} = 0
+\end{gather*}
+
+Thus, we can define FairAA by introducing an additional term in the optimization problem:
+
+$$\argmin_{\mathbf{S}, \mathbf{C}} \|{\mathbf{X} - \mathbf{SCX}}\|_F^2 + \lambda \|{\mathbf{z}\mathbf{S}}\|_F^2$$
+
+subject to $\|{\mathbf{s}_n}\|_2 = 1$, $\mathbf{s}_n \geq 0$, $\|{\mathbf{c}_k}\|_2 = 1$, $\mathbf{c}_k \geq 0$, and $\lambda \geq 0$, which acts as a regularization parameter.
+
+---
+
+#### Computation
+
+In this case, the objective function can also be written in terms of the trace operator as:
+$$E = \text{tr} \left( \mathbf{X} \mathbf{X}^\transpose - 2 \mathbf{SCX}\mathbf{X}^\transpose +  \mathbf{SCX}\mathbf{X}^\transpose \mathbf{C}^\transpose \mathbf{S}^\transpose \right) + \lambda \text{tr}\left( \mathbf{z}\mathbf{S}\mathbf{S}^\transpose\mathbf{z}^\transpose \right)$$
+
+and the resulting gradients are:
+$$\nabla_{\mathbf{S}} E = 2(\mathbf{SCX} \mathbf{X}^\transpose\mathbf{C}^\transpose -\mathbf{X} \mathbf{X}^\transpose\mathbf{C}^\transpose + \lambda\mathbf{z}^\transpose \mathbf{z} \mathbf{S}),$$
+$$\nabla_{\mathbf{C}} E = 2(\mathbf{S}^\transpose\mathbf{S}\mathbf{C}\mathbf{X}\mathbf{X}^\transpose - \mathbf{S}^\transpose\mathbf{X}\mathbf{X}^\transpose).$$
+
+To optimize the objective function, we can use the same alternating optimization scheme as in AA.
+
+
+#### Complexity order
+
+Regarding the complexity order, the $\lambda \mathbf{z}^\transpose \mathbf{z}$ parameter could be precomputed, so the complexity order will be the same as AA.
+
+---
+
+#### Example
+
+::: {layout-ncol=2}
+
+::: {.fragment}
+![Dataset](static/fair/dummy_data.png){#fig-fair-dummy-data}
+:::
+
+::: {.fragment}
+![Archetypes](static/fair/dummy_archetypes.png){#fig-fair-dummy-archetypes}
+:::
+
+::: {.fragment}
+![Metrics](static/fair/dummy_metrics.png){#fig-fair-dummy-metrics}
+:::
+
+::: {.fragment}
+![Projections](static/fair/dummy_simplex.png){#fig-fair-dummy-simplex}
+:::
+
+:::
+
+---
+
+### Kernelizing fair AA
+
+The computed gradients depend solely on the pairwise relationships, which are represented by the kernel matrix of inner products, $\mathbf{K} = \mathbf{X}\mathbf{X}^\transpose$.
+
+Therefore, FairAA  can be easily extended to kernel-based representations that rely on other pairwise data point relationships (FairKernelAA).
+
+In this new framework, the gradients are given by the following expressions:
+$$\nabla_{\mathbf{S}} E = 2(\mathbf{SCK}\mathbf{C}^\transpose -\mathbf{K}\mathbf{C}^\transpose + \lambda\mathbf{z}^\transpose \mathbf{z} \mathbf{S}),$$
+$$\nabla_{\mathbf{C}} E = 2(\mathbf{S}^\transpose\mathbf{S}\mathbf{C}\mathbf{K} - \mathbf{S}^\transpose\mathbf{K}).$$
+
+where $\mathbf{K} = \mathbf{K}(\mathbf{X}) \in \mathbb{R}^{n \times n}$ represents the kernel matrix that encodes the pairwise relationships between the elements of $\mathbf{X}$.
+
+---
+
+#### Exemple
+
+::: {layout-ncol=2}
+
+::: {.fragment}
+![Dataset](static/fair/dummy_kernel_data.png){#fig-fair-dummy-data-kernel}
+:::
+
+::: {.fragment}
+![Archetypes](static/fair/dummy_kernel_archetypes.png){#fig-fair-dummy-archetypes-kernel}
+:::
+
+::: {.fragment}
+![Metrics](static/fair/dummy_kernel_metrics.png){#fig-fair-dummy-metrics-kernel}
+:::
+
+::: {.fragment}
+![Projections](static/fair/dummy_kernel_simplex.png){#fig-fair-dummy-simplex-kernel}
+:::
+
+:::
+
+
+---
+
+### Hiding multiple groups
+
+Tto extend FairAA to cases where the critical attribute consists of $m$ disjoint groups, we adopt the one-vs-all approach.
+
+We define $m$ one-hot encoded critical attributes $\mathbf{z}^{(1)}, \dots, \mathbf{z}^{(m)}$, where $z_i^{(l)} = 1$ if $\mathbf{x}_i$ belongs to group $l$, and $z_i^{(l)} = 0$ if it does not.
+
+This definition implies that $\mathbf{ZS} = 0$, where the $l$-th row of $\mathbf{Z} \in \mathbb{R}^{m \times n}$ is given by $\{z_1^{(l)} - \bar{z}^{(l)}, \dots, z_n^{(l)} - \bar{z}^{(l)}\}$, with $\bar{z}^{(l)}$ being the mean of the $l$-th critical attribute across all data points.
+
+As a result, the optimization problem can be solved in a similar manner to the fair AA approach for two groups.
+
+$$\argmin_{\mathbf{S}, \mathbf{C}} \|{\mathbf{X} - \mathbf{SCX}}\|_F^2 + \lambda \|{\mathbf{Z}\mathbf{S}}\|_F^2$$
+
+subject to $\|{\mathbf{s}_n}\|_1 = 1$, $\mathbf{s}_n \geq 0$, $\|{\mathbf{c}_k}\|_2 = 1$, $\mathbf{c}_k \geq 0$, and $\lambda \geq 0$, which acts as a regularization parameter.
+
+---
+
+#### Example
+
+::: {layout-ncol=2}
+
+::: {.fragment}
+![Dataset](static/fair/dummy_multi_data.png){#fig-fair-dummy-data-multi}
+:::
+
+::: {.fragment}
+![Archetypes](static/fair/dummy_multi_archetypes.png){#fig-fair-dummy-archetypes-multi}
+:::
+
+::: {.fragment}
+![Metrics](static/fair/dummy_multi_metrics.png){#fig-fair-dummy-metrics-multi}
+:::
+
+::: {.fragment}
+![Projections](static/fair/dummy_multi_simplex.png){#fig-fair-dummy-simplex-multi}
+:::
+
+:::
+
+
+# Python Package
+
+
+## `archetypes` package
+
+::: aside
+[https://archetypes.readthedocs.io/](https://archetypes.readthedocs.io/)
+:::
+
+`archetypes` is a Python package offering a user-friendly and efficient implementation of state-of-the-art techniques for Archetypal Analysis (AA).
+
+- Implements multiple archetype initialization algorithms.
+- Supports a variety of AA algorithms.
+- Provides multiple backends, including numpy, jax, and torch.
+- Runs seamlessly on both CPU and GPU.
+- Integrates diverse visualization tools for enhanced result interpretation.
+- Fully open-source and community-driven project.
+
+---
+
+### Example
+
+```{python}
+#| fig-align: center
+#| echo: true
+
+from archetypes import AA
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Create a dataset with 1000 samples
+generator = np.random.default_rng(123)
+X = generator.uniform(size=(1000, 2))
+
+# Fit an AA model with 3 archetypes
+aa = AA(n_archetypes=4, random_state=123).fit(X)
+
+# Plot the data and the prototypes
+fig, ax = plt.subplots()
+ax.scatter(X[:, 0], X[:, 1], alpha=0.25)
+ax.scatter(aa.archetypes_[:, 0], aa.archetypes_[:, 1], color='red', s=100)
+plt.show()
+```
+
+
+
+# Conclusions
+
+## Summary
+
+- The concept of *archetype* refers to a typical form or prototype that other objects are derived from.
+- Archetypal Analysis is a technique used to find extreme points (archetypes) in a dataset.
+- The prototypes obtained by Archetypal Analysis often offers more interpretable results than clustering.
+- Fair Archetypal Analysis allows to obscure critical information when projecting the dataset onto the archetypal space.
+- Fair Archetypal Analysis has been extended to use different pairwise relationships between data points and to hide multiple groups.
+- There is a Python package called `archetypes` that makes it easy to work with archetypes.
+
+
+## Main References
+
+  - Alcacer, A., Epifanio, I., & Gual-Arnau, X. (2024). Biarchetype Analysis: Simultaneous Learning of Observations and Features Based on Extremes. IEEE Transactions on Pattern Analysis and Machine Intelligence, 1–12. https://doi.org/10.1109/TPAMI.2024.3400730
+  - Cutler, A., & Breiman, L. (1994). Archetypal Analysis. Technometrics, 36(4), 338–347. https://doi.org/10.2307/1269949
+  - Mørup, M., & Hansen, L. K. (2012). Archetypal analysis for machine learning and data mining. Neurocomputing, 80, 54–63. https://doi.org/10.1016/j.neucom.2011.06.033
+  - Kleindessner, M., Donini, M., Russell, C., Zafar, M. B. (2023). Efficient Fair PCA for Fair Representation Learning. International Conference on Artificial Intelligence and Statistics (pp. 5250–5270). PMLR. https://doi.org/10.48550/arXiv.2302.13319
+
+
+
+## Thank you 🫰 {.center}
